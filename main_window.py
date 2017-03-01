@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QVBoxLayout, \
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
-from widgets import Exhibit
+from fms.widgets import Exhibit
 
 
 class MainWindow(QMainWindow):
@@ -100,7 +100,7 @@ class ListZone(QWidget):
             return pic
 
 class EditZone(QWidget):
-    
+
     def __init__(self, flds):
         super(EditZone, self).__init__()
         
