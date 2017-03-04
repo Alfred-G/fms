@@ -19,7 +19,7 @@ class MainWindow(QMainWindow):
     
     def __init__(self, flds):
         super(MainWindow, self).__init__()
-        self.button_zone = ButtonZone()
+        self.button_zone = QWidget()
         self.edit_zone = EditZone(flds)
         self.list_zone = ListZone()
         
@@ -46,18 +46,20 @@ class MainWindow(QMainWindow):
         info_zone.setLayout(info_layout)
         
         self.setGeometry(300, 300, 300, 150)
-        self.setWindowState(Qt.WindowMaximized)
+        #self.setWindowState(Qt.WindowMaximized)
         
 class ListZone(QWidget):
     
     def __init__(self):
         super(ListZone, self).__init__()
+        self.widget_list = [(QLabel(), Exhibit()) for i in range(42)]
+        self.slider = QSlider(Qt.Horizontal)
+        
         grid = QGridLayout()
         grid.setSizeConstraint(3)
         self.setLayout(grid)
         
-        self.widget_list = [(QLabel(), Exhibit()) for i in range(42)]
-        
+        self.slider.setMaximum(0)
         for i in enumerate(self.widget_list):
             idx = i[0]
             label = i[1][0]
@@ -65,6 +67,7 @@ class ListZone(QWidget):
             grid.addWidget(widget, (idx // 7) * 2, idx % 7)
             label.setFixedWidth(220)
             grid.addWidget(label, (idx // 7) * 2 + 1, idx % 7)
+        grid.addWidget(self.slider, 12, 0, 1, 7)
         
     def print_screen(self, info_list):
         for i in zip(info_list, self.widget_list):
@@ -83,6 +86,10 @@ class ListZone(QWidget):
                 i[0].setText(' ')
                 i[1].setText(' ')
     
+    def set_label_color(self, idx, color):
+        self.widget_list[idx][0]\
+            .setStyleSheet('QLabel {color: %s}' % color)
+
     @staticmethod
     def pixmap(pic_path):
         pic = ''
@@ -127,14 +134,10 @@ class ButtonZone(QWidget):
         self.oButton = QPushButton('Order')
         self.rButton = QPushButton('Random')
         self.lineEdit = QLineEdit()
-        
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setMaximum(0)
-        
+
         grid = QGridLayout()
         grid.addWidget(self.sButton, 4, 0)
         grid.addWidget(self.oButton, 4, 1)
         grid.addWidget(self.rButton, 4, 2)
         grid.addWidget(self.lineEdit, 0, 0, 3, 3)
-        grid.addWidget(self.slider, 5, 0, 1, 3)
         self.setLayout(grid)
