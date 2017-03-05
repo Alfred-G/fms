@@ -6,6 +6,7 @@ Created on Sat Feb 11 15:00:40 2017
 """
 import os
 from time import strftime, localtime
+import traceback
 
 from utils.functions import get_md5
 
@@ -17,7 +18,7 @@ class LocalFile():
             for f in os.scandir(p):
                 if f.is_file():
                     file = {}
-                    file['path'] = f.path
+                    file['path'] = f.path.replace('\\','/')
                     file['ctime'] = strftime('%Y-%m-%d',
                         localtime(f.stat().st_ctime))
                     size = f.stat().st_size
@@ -27,6 +28,19 @@ class LocalFile():
                     #fobj.close()
                     yield file
 
-    def rename(data):
-        for i in data:
-            os.rename(**data)
+    @staticmethod
+    def rename(src, dst):
+        try:
+            os.rename(src, dst)
+            return True
+        except:
+            traceback.print_exc()
+            return False
+
+    @staticmethod
+    def open_file(file_path, prefix = ''):
+        full_path = os.path.join(prefix ,file_path)
+        if os.path.exists(full_path):
+            os.startfile(full_path)
+        else:
+            print(full_path)

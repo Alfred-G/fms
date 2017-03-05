@@ -8,7 +8,7 @@ import os
 import traceback
 
 from PyQt5.QtWidgets import QWidget, QMainWindow, QHBoxLayout, QVBoxLayout, \
-    QGridLayout, QLabel, QLineEdit, QPushButton, QSlider, QFormLayout
+    QGridLayout, QLabel, QLineEdit, QPushButton, QSlider, QFormLayout, QStatusBar
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
@@ -17,14 +17,17 @@ from fms.widgets import Exhibit
 
 class MainWindow(QMainWindow):
     
-    def __init__(self, flds):
+    def __init__(self, flds, menu=None):
         super(MainWindow, self).__init__()
+        
         self.button_zone = QWidget()
         self.edit_zone = EditZone(flds)
         self.list_zone = ListZone()
         
+        status_bar = QStatusBar()
+        self.setStatusBar(status_bar)
         self.init_ui()
-        
+
     def init_ui(self):
         centralWidget = QWidget()
         info_zone = QWidget()
@@ -46,13 +49,14 @@ class MainWindow(QMainWindow):
         info_zone.setLayout(info_layout)
         
         self.setGeometry(300, 300, 300, 150)
-        #self.setWindowState(Qt.WindowMaximized)
+        self.setWindowState(Qt.WindowMaximized)
         
 class ListZone(QWidget):
     
-    def __init__(self):
+    def __init__(self, menu=None):
         super(ListZone, self).__init__()
-        self.widget_list = [(QLabel(), Exhibit()) for i in range(42)]
+        self.info_list = []
+        self.widget_list = [(QLabel(), Exhibit(menu)) for i in range(42)]
         self.slider = QSlider(Qt.Horizontal)
         
         grid = QGridLayout()
@@ -60,6 +64,8 @@ class ListZone(QWidget):
         self.setLayout(grid)
         
         self.slider.setMaximum(0)
+        self.slider.valueChanged.connect(self.changePage)
+
         for i in enumerate(self.widget_list):
             idx = i[0]
             label = i[1][0]
@@ -86,9 +92,30 @@ class ListZone(QWidget):
                 i[0].setText(' ')
                 i[1].setText(' ')
     
-    def set_label_color(self, idx, color):
-        self.widget_list[idx][0]\
-            .setStyleSheet('QLabel {color: %s}' % color)
+    def set_label_color(self, idx, color, single):
+        try:
+            if single:
+                for i in self.widget_list:
+                    i[0].setStyleSheet('QLabel {color: black}')
+            self.widget_list[idx][0]\
+                .setStyleSheet('QLabel {color: %s}' % color)
+        except:
+            traceback.print_exc()
+            print(idx)
+
+    def get_current(self, page_num):
+        start = page_num * 42
+        end = min((page_num + 1) * 42, len(self.info_list))
+        return self.info_list[start: end]
+    
+    def changePage(self, event):
+        try: 
+        #self.statusBar().showMessage(
+        #    'Items: %s, Page: %s' % (len(self.info_list), event.real + 1)
+        #)
+            self.print_screen(self.get_current(event.real))
+        except:
+            traceback.print_exc()
 
     @staticmethod
     def pixmap(pic_path):
