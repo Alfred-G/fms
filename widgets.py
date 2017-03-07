@@ -4,34 +4,37 @@ Created on Sun Dec 11 18:00:30 2016
 
 @author: Alfred
 """
-from PyQt5.QtWidgets import QLabel, QApplication, QMenu
+from PyQt5.QtWidgets import QLabel, QApplication, QLineEdit
 from PyQt5.QtCore import pyqtSignal, Qt
-from PyQt5.QtGui import QCursor
 
 
 class Exhibit(QLabel):
-    OnClicked = pyqtSignal([int, int], [int, str])
-    OnClickedCtrl = pyqtSignal([int, int], [int, str])
-    OnClickedShift = pyqtSignal([int, int], [int, str])
-    OnDblClicked = pyqtSignal([int, int], [int, str])
-    OnDblClickedCtrl = pyqtSignal([int, int], [int, str])
-    
-    def __init__(self, menu=None):
+    onClicked = pyqtSignal([int, int], [int, str])
+    onClickedCtrl = pyqtSignal([int, int], [int, str])
+    onClickedShift = pyqtSignal([int, int], [int, str])
+    onDblClicked = pyqtSignal([int, int], [int, str])
+    onDblClickedCtrl = pyqtSignal([int, int], [int, str])
+    onSelected = pyqtSignal([int])
+
+    def __init__(self):
         super(Exhibit, self).__init__()
         self.setFixedWidth(220)
         self.setMinimumHeight(150)
 
+        #self.setContextMenuPolicy(Qt.CustomContextMenu)
+        #self.customContextMenuRequested.connect(self.item_menu)
+
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             if (QApplication.keyboardModifiers() == Qt.ControlModifier):
-                self.OnClickedCtrl.emit(event.x(), event.y())
+                self.onClickedCtrl.emit(event.x(), event.y())
             elif (QApplication.keyboardModifiers() == Qt.ShiftModifier):
-                self.OnClickedShift.emit(event.x(), event.y())
+                self.onClickedShift.emit(event.x(), event.y())
             else:
-                self.OnClicked.emit(event.x(), event.y())
+                self.onClicked.emit(event.x(), event.y())
             event.accept()
         elif event.button() == Qt.RightButton:
-            self.OnClicked[int, str].emit(event.x(), str(event.y()))
+            self.onClicked[int, str].emit(event.x(), str(event.y()))
             event.accept()  
         else:  
             super(Exhibit, self).mousePressEvent(self, event)
@@ -39,12 +42,36 @@ class Exhibit(QLabel):
     def mouseDoubleClickEvent(self, event):
         if event.button() == Qt.LeftButton:  
             if (QApplication.keyboardModifiers() == Qt.ControlModifier):
-                self.OnDblClickedCtrl.emit(event.x(), event.y())
+                self.onDblClickedCtrl.emit(event.x(), event.y())
             else:
-                self.OnDblClicked.emit(event.x(), event.y())
+                self.onDblClicked.emit(event.x(), event.y())
             event.accept()  
         elif event.button() == Qt.RightButton:
-            self.OnDblClicked[int, str].emit(event.x(), str(event.y()))
+            self.onDblClicked[int, str].emit(event.x(), str(event.y()))
             event.accept()  
         else:  
             super(Exhibit,self).mouseDoubleClickEvent(self, event)
+
+    """
+    def item_menu(self):
+        try:
+            menu = QMenu()
+            rename = QAction('Move', item)
+            rename.triggered.connect(self.rename)
+            remove = QAction('Delete', item)
+            menu.addAction(rename)
+            menu.addAction(remove)
+            menu.exec_(QCursor.pos())
+        except:
+            traceback.print_exc()
+    """
+
+class InfoEdit(QLineEdit):
+    onFocused = pyqtSignal()
+
+    def __init__(self):
+        super(InfoEdit, self).__init__()
+
+    def mousePressEvent(self, event):
+        self.onFocused.emit()
+        event.accept()

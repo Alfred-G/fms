@@ -6,12 +6,15 @@ Created on Sat Feb 11 15:00:40 2017
 """
 import os
 from time import strftime, localtime
+import threading
 import traceback
 
-from utils.functions import get_md5
+
 
 class LocalFile():
-    
+    """
+    1
+    """
     @staticmethod
     def scan(path):
         for p, ds, fs in os.walk(path):
@@ -23,10 +26,22 @@ class LocalFile():
                         localtime(f.stat().st_ctime))
                     size = f.stat().st_size
                     file['size'] = round(size / 1024 / 1024, 2)
-                    #fobj = open(f.path, 'rb')
-                    file['md5'] = ''#get_md5(fobj.read())
-                    #fobj.close()
+
+                    yield f.f
+                    #f.join()
+                    
+                    """
+                    file = {}
+                    file['path'] = f.path.replace('\\','/')
+                    file['ctime'] = strftime('%Y-%m-%d',
+                        localtime(f.stat().st_ctime))
+                    size = f.stat().st_size
+                    file['size'] = round(size / 1024 / 1024, 2)
+                    fobj = open(f.path, 'rb')
+                    file['md5'] = get_md5(fobj.read())
+                    fobj.close()
                     yield file
+                    """
 
     @staticmethod
     def rename(src, dst):
@@ -44,3 +59,40 @@ class LocalFile():
             os.startfile(full_path)
         else:
             print(full_path)
+
+
+
+class FileIO(threading.Thread):
+    def __init__(self, f):
+        super(FileIO, self).__init__()
+        self.f = f
+        self.result = []
+        self.setDaemon(True)
+
+    def run(self):
+        file = {}
+        file['path'] = self.f.path.replace('\\','/')
+        file['ctime'] = strftime('%Y-%m-%d',
+            localtime(self.f.stat().st_ctime))
+        size = self.f.stat().st_size
+        file['size'] = round(size / 1024 / 1024, 2)
+        fobj = open(self.f.path, 'rb')
+        file['md5'] = get_md5(fobj.read())
+        fobj.close()
+        print(file)
+        self.f = file
+
+class threadsafe_iter:
+    """Takes an iterator/generator and makes it thread-safe by
+    serializing call to the `next` method of given iterator/generator.
+    """
+    def __init__(self, it):
+        self.it = it
+        self.lock = threading.Lock()
+
+    def __iter__(self):
+        return self
+
+    def next(self):
+        with self.lock:
+            return self.it.next()
