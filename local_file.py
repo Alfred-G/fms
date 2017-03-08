@@ -27,7 +27,7 @@ class LocalFile():
                     size = f.stat().st_size
                     file['size'] = round(size / 1024 / 1024, 2)
 
-                    yield f.f
+                    yield file
                     #f.join()
                     
                     """
@@ -54,33 +54,16 @@ class LocalFile():
 
     @staticmethod
     def open_file(file_path, prefix = ''):
-        full_path = os.path.join(prefix ,file_path)
-        if os.path.exists(full_path):
-            os.startfile(full_path)
-        else:
-            print(full_path)
+        try:
+            full_path = os.path.join(prefix ,file_path)
+            if os.path.exists(full_path):
+                os.startfile(full_path)
+            else:
+                print(full_path)
+        except:
+            traceback.print_exc()
+            print(file_path)
 
-
-
-class FileIO(threading.Thread):
-    def __init__(self, f):
-        super(FileIO, self).__init__()
-        self.f = f
-        self.result = []
-        self.setDaemon(True)
-
-    def run(self):
-        file = {}
-        file['path'] = self.f.path.replace('\\','/')
-        file['ctime'] = strftime('%Y-%m-%d',
-            localtime(self.f.stat().st_ctime))
-        size = self.f.stat().st_size
-        file['size'] = round(size / 1024 / 1024, 2)
-        fobj = open(self.f.path, 'rb')
-        file['md5'] = get_md5(fobj.read())
-        fobj.close()
-        print(file)
-        self.f = file
 
 class threadsafe_iter:
     """Takes an iterator/generator and makes it thread-safe by

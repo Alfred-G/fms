@@ -98,11 +98,11 @@ class ListZone(QWidget):
     def print_screen(self, info_list):
         """
         list of tuple
-        (_id, text, pic)
+        (f.id,b.id,p.id,text, pic)
         """
         # NORMAL PRINT
         for i in zip(info_list, self.widget_list):
-            _id, text, pic = i[0]
+            fid, bid, pid, text, pic = i[0]
             pic = self.pixmap('D:/Python/fms%s' % pic)
             label, widget = i[1]
             
@@ -179,9 +179,12 @@ class ListZone(QWidget):
         except:
             traceback.print_exc()
 
-    def select(self, event):
-        idx = self.basic_select(True)
-        self.selected = [set([idx]), idx]
+    def select(self):
+        try:
+            idx = self.basic_select(True)
+            self.selected = [set([idx]), idx]
+        except:
+            traceback.print_exc()
 
     def select_ctrl(self):
         idx = self.basic_select(False)
@@ -237,16 +240,18 @@ class EditZone(QWidget):
         self.widget_dict[fld] = InfoEdit()
         
         widget = self.widget_dict[fld]
-        row_count = len(self.widget_dict.keys())-1
-        grid = QGridLayout()
-        grid.addWidget(QLabel(fld), row_count, 0)
-        grid.addWidget(widget, row_count, 1, 1, 2)
-        widget.adjustSize()
-        self.layout().addRow(grid)
+        self.layout().addRow(fld, widget)
 
     def remove_widget(self, fld):
         if fld in self.widget_dict.keys():
-            self.layout()
+            idx = self.layout().indexOf(self.widget_dict[fld])
+            label = self.layout().itemAt(idx - 1)
+            widget = self.layout().itemAt(idx)
+            self.layout().removeItem(label)
+            self.layout().removeItem(widget)
+            label.widget().setParent(None)
+            widget.widget().setParent(None)
+            del self.widget_dict[fld]
 
     def print_text(self, fld, text):
         """
