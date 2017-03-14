@@ -92,7 +92,9 @@ class ListZone(QWidget):
             grid.addWidget(label, (idx // 7) * 2 + 1, idx % 7)
         grid.addWidget(self.slider, 12, 0, 1, 7)
 
-
+    def get_info_list_selected(self, idx):
+        return [self.info_list[i] for i in self.selected[0]]
+    
     # screen display
     def print_screen(self, info_list):
         """
@@ -218,7 +220,6 @@ class ListZone(QWidget):
         end = max(self.selected[1], idx) + 1
         self.selected[0] = self.selected[0].union(range(start, end))
         self.selected[1] = idx
-
 
 
 class EditZone(QWidget):
