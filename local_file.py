@@ -6,9 +6,7 @@ Created on Sat Feb 11 15:00:40 2017
 """
 import os
 from time import strftime, localtime
-import threading
 import traceback
-
 
 
 class LocalFile():
@@ -26,25 +24,20 @@ class LocalFile():
                         localtime(f.stat().st_ctime))
                     size = f.stat().st_size
                     file['size'] = round(size / 1024 / 1024, 2)
-
                     yield file
-                    #f.join()
-                    
-                    """
-                    file = {}
-                    file['path'] = f.path.replace('\\','/')
-                    file['ctime'] = strftime('%Y-%m-%d',
-                        localtime(f.stat().st_ctime))
-                    size = f.stat().st_size
-                    file['size'] = round(size / 1024 / 1024, 2)
-                    fobj = open(f.path, 'rb')
-                    file['md5'] = get_md5(fobj.read())
-                    fobj.close()
-                    yield file
-                    """
 
     @staticmethod
     def rename(src, dst):
+        if not os.path.isfile(src):
+            print('ERROR: SRC FILE not exist\nsrc: %s' % src)
+            return False
+        elif os.path.isfile(dst):
+            print('ERROR: DST FILE already exist\ndst: %s' % dst)
+            return False
+        elif not os.path.isdir(os.path.dirname(dst)):
+            print('ERROR: DST DIR not exist\ndst: %s' % dst)
+            return False
+            
         try:
             os.rename(src, dst)
             return True
@@ -53,29 +46,15 @@ class LocalFile():
             return False
 
     @staticmethod
-    def open_file(file_path, prefix = ''):
+    def open_file(path):
         try:
-            full_path = os.path.join(prefix ,file_path)
-            if os.path.exists(full_path):
-                os.startfile(full_path)
+            if os.path.exists(path):
+                os.startfile(path)
+                return True
             else:
-                print(full_path)
+                print('ERROR: PATH not exist\npath: %s' % path)
+                return False
         except:
             traceback.print_exc()
-            print(file_path)
-
-
-class threadsafe_iter:
-    """Takes an iterator/generator and makes it thread-safe by
-    serializing call to the `next` method of given iterator/generator.
-    """
-    def __init__(self, it):
-        self.it = it
-        self.lock = threading.Lock()
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        with self.lock:
-            return self.it.next()
+            print('path: %s' % path)
+            return False

@@ -38,7 +38,7 @@ class MainWindow(QMainWindow):
         central_layout.addWidget(info_zone)
         central_layout.addWidget(self.tab_zone)
         central_layout.setStretch(0, 1)
-        central_layout.setStretch(1, 5)
+        central_layout.setStretch(1, 6)
         
         # info layout
         info_layout.addWidget(self.button_zone)
@@ -54,7 +54,6 @@ class MainWindow(QMainWindow):
         self.setStatusBar(QStatusBar())
 
         self.setGeometry(300, 300, 300, 150)
-        self.setWindowState(Qt.WindowMaximized)
 
 
 
@@ -103,7 +102,7 @@ class ListZone(QWidget):
         # NORMAL PRINT
         for i in zip(info_list, self.widget_list):
             fid, bid, pid, text, pic = i[0]
-            pic = self.pixmap('D:/Python/fms%s' % pic)
+            pic = self.pixmap(pic)
             label, widget = i[1]
             
             label.setText(text)
@@ -234,13 +233,16 @@ class EditZone(QWidget):
         self.setLayout(form)
 
     def add_widget(self, fld):
-        if fld in self.widget_dict.keys():
-            return
-        
-        self.widget_dict[fld] = InfoEdit()
-        
-        widget = self.widget_dict[fld]
-        self.layout().addRow(fld, widget)
+        try:
+            if fld in self.widget_dict.keys():
+                return
+            
+            self.widget_dict[fld] = InfoEdit()
+            
+            widget = self.widget_dict[fld]
+            self.layout().addRow(fld.split('.')[-1], widget)
+        except:
+            traceback.print_exc()
 
     def remove_widget(self, fld):
         if fld in self.widget_dict.keys():
@@ -258,6 +260,9 @@ class EditZone(QWidget):
         list of tuple
         (fld, text)
         """
-        if fld in self.widget_dict.keys():
-            self.widget_dict[fld].setText(text)
-            self.widget_dict[fld].setCursorPosition(0)
+        try:
+            if fld in self.widget_dict.keys():
+                self.widget_dict[fld].setText(str(text))
+                self.widget_dict[fld].setCursorPosition(0)
+        except:
+            traceback.print_exc()
